@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 
 app.use('/overlay', express.static(path.join(__dirname, 'front')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
+app.use('/giveaway', express.static(path.join(__dirname, '..', 'giveaway-v2')));
 
 async function getUserCredentials(userId) {
   const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
