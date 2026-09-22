@@ -29,6 +29,11 @@ app.use('/overlay', express.static(path.join(__dirname, 'front')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/giveaway', express.static(path.join(__dirname, '..', 'giveaway-v2')));
 
+// Redirection racine vers le concours
+app.get('/', (req, res) => {
+  res.redirect('/giveaway/index.html');
+});
+
 async function getUserCredentials(userId) {
   const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
   if (error) { console.error('[SUPABASE]', error); return null; }

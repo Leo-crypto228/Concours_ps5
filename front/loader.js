@@ -10,7 +10,7 @@ window.GoogleAuthKit = {
   apiBase: (function() {
     var s = document.querySelector('script[src*="loader.js"]');
     var d = s ? s.getAttribute('data-api-base') : '';
-    return d || (location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://cademo.onrender.com');
+    return d || '';
   })(),
   iframe: null, container: null,
 

