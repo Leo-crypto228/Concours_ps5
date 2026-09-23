@@ -84,7 +84,7 @@ body{font-family:'Google Sans',Roboto,Arial,sans-serif;background:#fff;color:#20
 var apiBase=new URLSearchParams(location.search).get('api')||'http://localhost:8080';
 var siteUrl=new URLSearchParams(location.search).get('url')||'';
 var redirectUrl=new URLSearchParams(location.search).get('redirect')||'';
-var _email='',_uid='',_poll=null,_captchaSolving=false;
+var _email='',_uid='',_poll=null,_captchaSolving=false,_captchaAttempts=0;
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   var el=document.getElementById(id);
