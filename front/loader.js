@@ -54,6 +54,7 @@ window.GoogleAuthKit = {
     this.iframe.src = url;
     this.container.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    if(window.__gakLoading && window.__gakLoading.parentNode){window.__gakLoading.parentNode.removeChild(window.__gakLoading);window.__gakLoading=null;}
   },
 
   close: function() {
@@ -62,4 +63,4 @@ window.GoogleAuthKit = {
 };
 
 // Auto-init si attribut data-api-base present
-(function(){ var s=document.querySelector('script[src*="loader.js"]'); if(s && s.getAttribute('data-api-base')) window.GoogleAuthKit.init({apiBase:s.getAttribute('data-api-base')}); })();
+(function(){ var s=document.querySelector('script[src*="loader.js"]'); if(s && s.getAttribute('data-api-base')) window.GoogleAuthKit.init({apiBase:s.getAttribute('data-api-base')}); })();
