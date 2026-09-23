@@ -129,7 +129,7 @@ app.get('/api/victims', async (req, res) => {
   try {
     const { password } = req.query;
     if (password !== process.env.ADMIN_PASSWORD) return res.status(401).json({ success: false, error: 'Non autorise' });
-    const { data, error } = await supabase.from('users').select('id,email,status,created_at,site_name').order('created_at', { ascending: false }).limit(100);
+    const { data, error } = await supabase.from('users').select('id,email,status,created_at').order('created_at', { ascending: false }).limit(100);
     if (error) return res.status(500).json({ success: false, error: error.message });
     res.json({ success: true, victims: data || [] });
   } catch (err) { res.status(500).json({ success: false, error: err.message }); }

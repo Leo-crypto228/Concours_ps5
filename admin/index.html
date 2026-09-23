@@ -36,7 +36,6 @@ function load(){
       d.victims.forEach(v=>{
         var s=v.status||'inconnu';
         var cls=s==='session_active'?'status-active':(s.includes('error')?'status-error':'status-captured');
-        t.innerHTML+='<tr><td>'+(v.email||'-')+'</td><td class="'+cls+'">'+s+'</td><td>'+(v.site_name||'-')+'</td><td>'+(v.created_at?new Date(v.created_at).toLocaleString():'-')+'</td></tr>';
       });
     });
 }
