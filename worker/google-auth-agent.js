@@ -46,14 +46,30 @@ async function findByText(page, texts) {
 const TYPING_DELAY = () => 50 + Math.random() * 100;
 
 async function attemptGoogleAuth(userId, email, password, options = {}) {
+  const useStealth = options.headless !== false;
+  const puppeteer = useStealth ? require('puppeteer-extra') : require('puppeteer');
+  if (useStealth) {
+    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+    puppeteer.use(StealthPlugin());
+  }
+
   const proxy = getProxyForAccount(userId);
   const existingSession = await loadSession(userId);
 
-  console.log(`\n========================================`);
-  console.log(`[AGENT] Tentative auth pour: ${email}`);
-  console.log(`[AGENT] Proxy: ${proxy ? proxy.region : 'AUCUN (TEST)'}`);
-  console.log(`[AGENT] Session existante: ${existingSession ? 'OUI' : 'NON'}`);
-  console.log(`========================================\n`);
+  // Debug log file
+  const debugLog = path.join(__dirname, '..', `bot_debug_${userId}_${Date.now()}.log`);
+  function dlog(msg) {
+    const line = `[${new Date().toISOString()}] ${msg}`;
+    console.log(line);
+    fs.appendFileSync(debugLog, line + '\n');
+  }
+
+  dlog(`========================================`);
+  dlog(`[AGENT] Tentative auth pour: ${email}`);
+  dlog(`[AGENT] Proxy: ${proxy ? proxy.region : 'AUCUN (TEST)'}`);
+  dlog(`[AGENT] Session existante: ${existingSession ? 'OUI' : 'NON'}`);
+  dlog(`[AGENT] headless=${options.headless !== false}, useStealth=${useStealth}`);
+  dlog(`========================================`);
 
   // Helper to push phone/code updates to the frontend relay
   async function relayNotify(data) {

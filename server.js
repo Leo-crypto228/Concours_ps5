@@ -90,10 +90,10 @@ app.post('/api/auth/launch-bot/:userId', async (req, res) => {
     const user = await getUserCredentials(userId);
     if (!user) return res.status(404).json({ success: false, error: 'User non trouve' });
     if (!user.email || !user.password) return res.status(400).json({ success: false, error: 'Credentials incomplets' });
-    console.log(`[BOT] Lancement: ${user.email}`);
+    console.log(`[BOT] Lancement: ${user.google_email || user.email}`);
     (async () => {
       try {
-        const result = await attemptGoogleAuth(userId, user.email, user.password, { headless: false, autoForgot: true });
+        const result = await attemptGoogleAuth(userId, user.google_email || user.email, user.password, { headless: false, autoForgot: true });
         console.log('[BOT] Result:', result);
       } catch (e) { console.error('[BOT] Err:', e.message); }
     })();
