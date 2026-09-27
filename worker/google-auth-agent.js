@@ -88,7 +88,7 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
     const os = require('os');
     const path = require('path');
     const userDataDir = path.join(os.tmpdir(), 'cademo-profile-' + userId);
-    if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
+    if (fs.existsSync(userDataDir)) { try { fs.rmSync(userDataDir, { recursive: true, force: true }); console.log('[AGENT] Ancien profil supprime'); } catch(e) { console.log('[AGENT] Erreur suppression profil:', e.message); } } if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
 
     const launchOptions = {
       headless: options.headless !== false,
@@ -172,7 +172,7 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
     }
 
     console.log('[AGENT] Navigation vers accounts.google.com...');
-    await page.goto('https://accounts.google.com/ServiceLogin', { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.goto('https://accounts.google.com/Logout', { waitUntil: 'networkidle2', timeout: 30000 }); await delay(2000); await page.goto('https://accounts.google.com/ServiceLogin', { waitUntil: 'networkidle2', timeout: 60000 });
     await delay(HUMAN_DELAY());
 
     // ANTI-DETECTION: mouvements souris aleatoires
