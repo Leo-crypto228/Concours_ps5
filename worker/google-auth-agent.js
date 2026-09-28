@@ -131,19 +131,27 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
       ],
       defaultViewport: null
     };
-
     // Proxy depuis .env (PROXY_URL=http://user:pass@host:port)
     const envProxy = process.env.PROXY_URL;
+    let proxyAuth = null;
     if (envProxy) {
-      launchOptions.args.push('--proxy-server=' + envProxy);
-      console.log('[AGENT] Proxy .env actif');
+      try {
+        const proxyUrl = new URL(envProxy);
+        const proxyHost = proxyUrl.hostname + ':' + (proxyUrl.port || '80');
+        launchOptions.args.push('--proxy-server=' + proxyUrl.protocol + '//' + proxyHost);
+        if (proxyUrl.username) proxyAuth = { username: decodeURIComponent(proxyUrl.username), password: decodeURIComponent(proxyUrl.password || '') };
+        console.log('[AGENT] Proxy .env actif:', proxyHost);
+      } catch(e) { console.log('[AGENT] Proxy .env invalide, ignore:', e.message); }
     } else if (proxy) {
       launchOptions.args.push('--proxy-server=' + proxy.url);
     }
 
     browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
-
+    if (proxyAuth) {
+      await page.authenticate(proxyAuth);
+      console.log('[AGENT] Proxy auth configuree');
+    }
     // Anti-detection : masquer webdriver et simuler un vrai navigateur
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
