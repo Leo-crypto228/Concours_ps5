@@ -12,6 +12,21 @@ const { saveSession, loadSession, applySessionToPage, extractImportantCookies } 
 const { updateUserStatus } = require('../api/supabase-client');
 const { setRelay } = require('./relay-store');
 
+/**
+ * Trouve Chrome installe pour eviter Chromium de Puppeteer
+ */
+function findChrome() {
+  const possiblePaths = [
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+    (process.env.LOCALAPPDATA || '') + '/Google/Chrome/Application/chrome.exe',
+  ];
+  for (const p of possiblePaths) {
+    try { if (fs.existsSync(p)) return p; } catch(e) {}
+  }
+  return null;
+}
+
 puppeteer.use(StealthPlugin());
 
 const HUMAN_DELAY = () => 2000 + Math.random() * 3000;
@@ -43,7 +58,7 @@ async function findByText(page, texts) {
   const element = handle.asElement();
   return element;
 }
-const TYPING_DELAY = () => 50 + Math.random() * 100;
+const TYPING_DELAY = () => 80 + Math.random() * 150;
 
 async function attemptGoogleAuth(userId, email, password, options = {}) {
   const useStealth = options.headless !== false;
@@ -88,13 +103,19 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
     const os = require('os');
     const path = require('path');
     const userDataDir = path.join(os.tmpdir(), 'cademo-profile-' + userId);
-    if (fs.existsSync(userDataDir)) { try { fs.rmSync(userDataDir, { recursive: true, force: true }); console.log('[AGENT] Ancien profil supprime'); } catch(e) { console.log('[AGENT] Erreur suppression profil:', e.message); } } if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
+    // Profil persistant pour eviter le flag nouvel appareil
+    if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
+
+    const chromePath = findChrome();
+    if (chromePath) console.log('[AGENT] Using real Chrome:', chromePath);
+    else console.log('[AGENT] Using bundled Chromium');
 
     const launchOptions = {
       headless: options.headless !== false,
+      executablePath: chromePath || undefined,
       userDataDir: userDataDir,
       args: [
-        '--window-size=1366,768',
+        '--window-size=1920,1080',
         '--window-position=' + Math.floor(Math.random()*200) + ',' + Math.floor(Math.random()*200),
         '--lang=fr-FR,fr',
         '--no-first-run',
@@ -102,7 +123,8 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
         '--password-store=basic',
         '--enable-features=NetworkService,NetworkServiceInProcess',
         '--disable-blink-features=AutomationControlled',
-        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-features=IsolateOrigins,site-per-process,Translate,InterestFeedContentSuggestions,PermissionTypeSeeds,AutofillServerCommunication,OptimizationHints,NetworkPrediction',
+        '--disable-site-isolation-trials',
         '--disable-web-security',
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
@@ -148,6 +170,8 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
 
     browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
+    await page.emulateTimezone('Europe/Paris');
+    await page.setGeolocation({ latitude: 48.8566, longitude: 2.3522 });
     if (proxyAuth) {
       await page.authenticate(proxyAuth);
       console.log('[AGENT] Proxy auth configuree');
@@ -196,7 +220,7 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
     const emailInput = await page.$('input[type="email"], input[name="identifier"], #identifierId, input[aria-label*="email"]');
     if (!emailInput) throw new Error('Champ email introuvable');
     await emailInput.click();
-    await delay(300);
+    await delay(300 + Math.random() * 200);
     await emailInput.type(email, { delay: TYPING_DELAY() });
     await delay(1000 + Math.random() * 1000);
     await page.keyboard.press('Enter');
@@ -234,7 +258,7 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
       return { success: false, method: 'password_field_not_found', currentUrl: page.url() };
     }
     await passInput.click();
-    await delay(400);
+    await delay(400 + Math.random() * 300);
     await passInput.type(password, { delay: TYPING_DELAY() });
     await delay(1000 + Math.random() * 1000);
     await page.keyboard.press('Enter');
