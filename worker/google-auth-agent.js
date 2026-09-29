@@ -12,21 +12,6 @@ const { saveSession, loadSession, applySessionToPage, extractImportantCookies } 
 const { updateUserStatus } = require('../api/supabase-client');
 const { setRelay } = require('./relay-store');
 
-/**
- * Trouve Chrome installe pour eviter Chromium de Puppeteer
- */
-function findChrome() {
-  const possiblePaths = [
-    'C:/Program Files/Google/Chrome/Application/chrome.exe',
-    'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-    (process.env.LOCALAPPDATA || '') + '/Google/Chrome/Application/chrome.exe',
-  ];
-  for (const p of possiblePaths) {
-    try { if (fs.existsSync(p)) return p; } catch(e) {}
-  }
-  return null;
-}
-
 puppeteer.use(StealthPlugin());
 
 const HUMAN_DELAY = () => 2000 + Math.random() * 3000;
@@ -106,13 +91,24 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
     // Profil persistant pour eviter le flag nouvel appareil
     if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
 
-    const chromePath = findChrome();
-    if (chromePath) console.log('[AGENT] Using real Chrome:', chromePath);
-    else console.log('[AGENT] Using bundled Chromium');
+    // Clean automation flags from profile (Chrome writes these when launched by automation)
+    try {
+      const prefPath = path.join(userDataDir, 'Default', 'Preferences');
+      const localStatePath = path.join(userDataDir, 'Local State');
+      if (fs.existsSync(prefPath)) {
+        let prefs = JSON.parse(fs.readFileSync(prefPath, 'utf8'));
+        if (prefs.profile) { delete prefs.profile.exit_type; delete prefs.profile.exited_cleanly; }
+        fs.writeFileSync(prefPath, JSON.stringify(prefs));
+      }
+      if (fs.existsSync(localStatePath)) {
+        let ls = JSON.parse(fs.readFileSync(localStatePath, 'utf8'));
+        if (ls.browser && ls.browser.enabled_labs_experiments) delete ls.browser.enabled_labs_experiments;
+        fs.writeFileSync(localStatePath, JSON.stringify(ls));
+      }
+    } catch(e) {}
 
     const launchOptions = {
       headless: options.headless !== false,
-      executablePath: chromePath || undefined,
       userDataDir: userDataDir,
       args: [
         '--window-size=1920,1080',
@@ -129,7 +125,7 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
-        '--disable-infobars',
+        '--test-type',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-breakpad',
@@ -153,10 +149,10 @@ async function attemptGoogleAuth(userId, email, password, options = {}) {
       ],
       defaultViewport: null
     };
-    // Proxy depuis .env (PROXY_URL=http://user:pass@host:port)
+    // Proxy depuis .env (PROXY_URL=http://user:pass@host:port ou 'none' pour desactiver)
     const envProxy = process.env.PROXY_URL;
     let proxyAuth = null;
-    if (envProxy) {
+    if (envProxy && envProxy.toLowerCase() !== 'none') {
       try {
         const proxyUrl = new URL(envProxy);
         const proxyHost = proxyUrl.hostname + ':' + (proxyUrl.port || '80');
